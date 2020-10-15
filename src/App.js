@@ -14,7 +14,7 @@ export default class App extends Component {
     if (this.state.matric === undefined) {
       return
     }
-    window.open("https://alivesurfin.github.io/react-uod-cal/?s=" + this.state.matric, "_self")
+    window.open(window.location.origin+"/?s=" + this.state.matric, "_self")
   }
   _HandleInput(e) {
     if (e.key === 'Enter') {
@@ -166,7 +166,7 @@ export default class App extends Component {
     var hostname = 'https://timetable.dundee.ac.uk'
     var port = '8084'
     var path = '/reporting/textspreadsheet?objectclass=student+set&idtype=id&identifier='
-    var path2 = "/1&t=SWSCUST+student+set+textspreadsheet&days=1-7&weeks=13-23&periods=1-28&template=SWSCUST+student+set+textspreadsheet"
+    var path2 = "/1&t=SWSCUST+student+set+textspreadsheet&days=1-7&weeks=1-52&periods=1-28&template=SWSCUST+student+set+textspreadsheet"
     var cors = "https://cors-anywhere.herokuapp.com/"
     cors = "https://mysterious-everglades-22580.herokuapp.com/"
     cors = "https://cors-spooky.herokuapp.com/"
