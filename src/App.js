@@ -14,7 +14,7 @@ export default class App extends Component {
     if (this.state.matric === undefined) {
       return
     }
-    window.open(window.location.origin+"/?s=" + this.state.matric, "_self")
+    window.open(window.location.origin+window.location.pathname+"/?s=" + this.state.matric, "_self")
   }
   _HandleInput(e) {
     if (e.key === 'Enter') {
