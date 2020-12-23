@@ -2,19 +2,81 @@ import React, { Component } from 'react'
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import moment from 'moment'
 import './sass/styles.scss'
+moment.locale('en', {
+  week: {
+      dow: 1,
+      doy: 1,
+  },
+});
 const localizer = momentLocalizer(moment)
 
+function Event({ event }) {
+  console.log(event);
+  /*
+   var event = {
+            title: cur.type + " | " + moduleName + " | " + cur.activity.split(" ")[0],
+            type: cur.type,
+            start: start,
+            end: end,
+            allDay: false,
+            moduleName: moduleName,
+            modcode: modcode,
+            room: cur.room,
+            activity: cur.activity,
+            staff: cur.staff,
+          };
+  */
+  let url = "https://www.dundee.ac.uk/module/" + event.modcode
+  let staff = []
+  let staffurl = "https://www.dundee.ac.uk/people/"
+  if(event.staff.split(",").length===2){
+    staff.push(<a href={staffurl+ event.staff.split(",")[1].trim() + "-" + event.staff.split(",")[0].trim()}> {event.staff.split(",")[1]}-{event.staff.split(",")[0]} </a>)
 
+  }else{
+    let staffsplit = event.staff.split(",")
+    for(let x=0; x< staffsplit.length; x++){
+      staff.push(<a href={staffurl+ staffsplit[x+1].trim()+"-"+ staffsplit[x].trim()}> {staffsplit[x+1].trim()+" " +staffsplit[x].trim()} </a>)
+      x++
+    }
+    
+  }
+ console.log(staff);
+  return (
+    <div className="event-wrapper">
+      <div className="event-type">
+        {event.type}
+      </div>
+      <div className="event-module">
+        <a href={url}>{event.modcode} {event.moduleName}</a>
+      </div>
+      <div className="event-room">
+        {event.room==="&nbsp;" ? "n/a" : event.room}
+      </div>
+      <div className="event-staff">
+        {staff}
+      </div>
+    </div>
+  )
+
+}
 export default class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {}
+    const minTime = new Date();
+    minTime.setHours(8, 0, 0);
+    const maxTime = new Date();
+    maxTime.setHours(20, 0, 0);
+    this.state = {
+      minTime: minTime,
+      maxTime: maxTime
+    }
+
   }
   openUrl() {
     if (this.state.matric === undefined) {
       return
     }
-    window.open(window.location.origin+window.location.pathname+"/?s=" + this.state.matric, "_self")
+    window.open(window.location.origin + window.location.pathname + "/?s=" + this.state.matric, "_self")
   }
   _HandleInput(e) {
     if (e.key === 'Enter') {
@@ -26,24 +88,43 @@ export default class App extends Component {
     console.log(e)
     this.setState({ matric: e })
   }
+
   render() {
+    let components = {
+      agenda: {
+        event: Event // with the agenda view use a different component to render events
+      }
+    }
     return (
-      <div>
+      <div id="container">
         <p>{this.state.calendar == null ? "Enter Matric" : ""}</p>
         <Calendar
+          components={components}
           localizer={localizer}
           events={this.state.calendar == null ? [] : this.state.calendar}
           startAccessor="start"
           endAccessor="end"
           style={this.state.calendar == null ? { display: "none" } : { height: 700 }}
+          defaultView={'agenda'}
+          min={this.state.minTime}
+          max={this.state.maxTime}
+          formats = {{
+            agendaHeaderFormat: ({start, end}) => {
+                return (moment.utc(start).format('DD/MM/YYYY') + ' - ' + moment.utc(end).format('DD/MM/YYYY') );
+            }
+        }}
+
         />
         <div className="matric-input" style={this.state.calendar != null ? { display: "none" } : {}}>
+          <form>
           <input onChange={event => this._HandleChange(event.target.value)}
             onKeyDown={evnt => this._HandleInput(evnt)}
+            name="matriculation"
           ></input>
-          <button onClick={() => this.openUrl()}>
+          <button onClick={() => this.openUrl()} type="submit">
             submit
         </button>
+        </form>
         </div>
       </div>
     )
@@ -53,12 +134,12 @@ export default class App extends Component {
 
     // first row needs to be headers
     var headers = [];
-    for (var i = 0; i < table.rows[0].cells.length; i++) {
+    for (let i = 0; i < table.rows[0].cells.length; i++) {
       headers[i] = table.rows[0].cells[i].innerHTML.toLowerCase().replace(/ /gi, '');
     }
 
     // go through cells
-    for (var i = 1; i < table.rows.length; i++) {
+    for (let i = 1; i < table.rows.length; i++) {
 
       var tableRow = table.rows[i];
       var rowData = {};
@@ -76,7 +157,6 @@ export default class App extends Component {
   }
 
   parseTimetable(days) {
-    console.log(days)
     var events = []
     function addMinutes(date, minutes) {
       return new Date(date.getTime() + minutes * 60000);
@@ -90,7 +170,7 @@ export default class App extends Component {
         }
         return returnArray
       } else {
-        var returnArray = []
+        let returnArray = []
         returnArray.push(parseInt(weeks.trim()))
         return returnArray
       }
@@ -109,11 +189,26 @@ export default class App extends Component {
       return result;
     }
     var week1 = new Date(2020, 9, 5)
+    var week12 = new Date(2021, 0, 18)
+    var moduleDict = {};
     for (let x = 0; x < days.length; x++) {
       let dayAdd = x
       for (let y = 0; y < days[x].length; y++) {
         var cur = days[x][y]
+        var modcode = cur.activity.split(" ")[0]
+        if (modcode.includes("/")) {
+          modcode = modcode.split("/")[0]
+        } else if (modcode.includes("-")) {
+          modcode = modcode.split("-")[0]
+        }
+        modcode = modcode.replace(/[^0-9a-z]/gi, '')
+        var moduleBaseURL = "https://www.dundee.ac.uk/module/"
 
+        if (!(modcode in moduleDict)) {
+          moduleDict[modcode] =
+            this.getModuleInfo(moduleBaseURL + modcode)
+        }
+        var moduleName = moduleDict[modcode]
         var weeksForEvent = []
         if (cur.weeks.includes("-") && cur.weeks.includes(",")) {
           // multiple week spans
@@ -125,7 +220,7 @@ export default class App extends Component {
         }
         else if (cur.weeks.includes(",")) {
           // multiple weeks
-          var weeksSplit = cur.weeks.split(",")
+          let weeksSplit = cur.weeks.split(",")
           for (let z = 0; z < weeksSplit.length; z++) {
             weeksForEvent = weeksForEvent.concat(parseWeeks(weeksSplit[z]))
           }
@@ -138,10 +233,14 @@ export default class App extends Component {
           //single week
         }
         for (let i = 0; i < weeksForEvent.length; i++) {
-          let curDate = addDays(week1, ((weeksForEvent[i] - 1) * 7))
+          let curDate
+          if (weeksForEvent[i] >= 12) {
+            weeksForEvent[i] = weeksForEvent[i] - 12
+            curDate = addDays(week12, ((weeksForEvent[i]) * 7))
+          } else {
+            curDate = addDays(week1, ((weeksForEvent[i] - 1) * 7))
+          }
           curDate = addDays(curDate, dayAdd)
-          //curDate = week1
-          var moduleName = cur.activity.includes("AC31008") ? "Networks and Data Communications" : cur.activity.includes("AC31012") ? "Information Security" : "Database Systems"
           var startHours = parseTime(cur.start)
           var start = addMinutes(curDate, startHours[0] * 60)
           start = addMinutes(start, startHours[1])
@@ -150,9 +249,16 @@ export default class App extends Component {
           end = addMinutes(end, endHours[1])
           var event = {
             title: cur.type + " | " + moduleName + " | " + cur.activity.split(" ")[0],
+            type: cur.type,
             start: start,
-            end, end,
+            end: end,
             allDay: false,
+            moduleName: moduleName,
+            modcode: modcode,
+            room: cur.room,
+            activity: cur.activity,
+            staff: cur.staff,
+            duration: cur.duration,
           };
           events.push(event)
         }
@@ -162,7 +268,22 @@ export default class App extends Component {
     console.log(events)
     return events
   }
+  getModuleInfo(url) {
+    var cors = "https://cors-anywhere.herokuapp.com/"
+    cors = "https://mysterious-everglades-22580.herokuapp.com/"
+    cors = "https://cors-spooky.herokuapp.com/"
+    cors = "https://secret-chamber-30285.herokuapp.com/"
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("GET", cors + url, false); // false for synchronous request
+    xmlHttp.send();
+    //console.log(xmlHttp.responseText)
+    var raw = xmlHttp.responseText.split("<title>")[1].split("module")[0].trim()
+    return raw
+  }
   getTimetable(matric) {
+    if (matric === "" || matric === undefined || matric === null) {
+      return
+    }
     var hostname = 'https://timetable.dundee.ac.uk'
     var port = '8084'
     var path = '/reporting/textspreadsheet?objectclass=student+set&idtype=id&identifier='
@@ -175,10 +296,9 @@ export default class App extends Component {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open("GET", cors + fullURL, false); // false for synchronous request
     xmlHttp.send();
-    //console.log(xmlHttp.responseText)
     var raw = xmlHttp.responseText
     raw = raw.split(`<p><span class='labelone'>Monday</span></p>`)[1]
-    if (raw == undefined) {
+    if (raw === undefined) {
       return
     }
     raw = raw.split(`<p><span class='labelone'>Saturday</span></p>`)[0]
@@ -186,16 +306,11 @@ export default class App extends Component {
     var days = raw.split('</span></p>')
     var daysJSON = []
     for (let x = 0; x < days.length; x++) {
-      console.log(x + 1)
-      //console.log(days[x])
       if (days[x].includes(`<p><span class='labelone'`)) {
         days[x] = days[x].split('</table>')[0]
       }
-      //console.log(mapDOM(days[x],true))
       var parser = new DOMParser();
       var doc = parser.parseFromString(days[x], 'text/html');
-      // console.log(doc.body.firstChild)
-      // console.log(this.tableToJson(doc.body.firstChild))
       daysJSON.push(this.tableToJson(doc.body.firstChild))
 
     }
