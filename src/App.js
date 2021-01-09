@@ -4,43 +4,22 @@ import moment from 'moment'
 import './sass/styles.scss'
 moment.locale('en', {
   week: {
-      dow: 1,
-      doy: 1,
+    dow: 1,
+    doy: 1,
   },
 });
 const localizer = momentLocalizer(moment)
+const ical = require('ical-generator');
+const cal = ical({ domain: "github.com/aliveSurfin/react-uod-cal", name: "react-uod-cal", prodId: { company: "github.com/aliveSurfin", product: "react-uod-cal" } });
+var filedownloadlink = false
 
 function Event({ event }) {
-  console.log(event);
-  /*
-   var event = {
-            title: cur.type + " | " + moduleName + " | " + cur.activity.split(" ")[0],
-            type: cur.type,
-            start: start,
-            end: end,
-            allDay: false,
-            moduleName: moduleName,
-            modcode: modcode,
-            room: cur.room,
-            activity: cur.activity,
-            staff: cur.staff,
-          };
-  */
   let url = "https://www.dundee.ac.uk/module/" + event.modcode
   let staff = []
-  let staffurl = "https://www.dundee.ac.uk/people/"
-  if(event.staff.split(",").length===2){
-    staff.push(<a href={staffurl+ event.staff.split(",")[1].trim() + "-" + event.staff.split(",")[0].trim()}> {event.staff.split(",")[1]}-{event.staff.split(",")[0]} </a>)
-
-  }else{
-    let staffsplit = event.staff.split(",")
-    for(let x=0; x< staffsplit.length; x++){
-      staff.push(<a href={staffurl+ staffsplit[x+1].trim()+"-"+ staffsplit[x].trim()}> {staffsplit[x+1].trim()+" " +staffsplit[x].trim()} </a>)
-      x++
-    }
-    
+  for (let x = 0; x < event.staff.length; x++) {
+    staff.push(<a href={event.staff[x].url}> {event.staff[x].name} </a>)
   }
- console.log(staff);
+
   return (
     <div className="event-wrapper">
       <div className="event-type">
@@ -50,7 +29,7 @@ function Event({ event }) {
         <a href={url}>{event.modcode} {event.moduleName}</a>
       </div>
       <div className="event-room">
-        {event.room==="&nbsp;" ? "n/a" : event.room}
+        {event.room === "&nbsp;" ? "n/a" : event.room}
       </div>
       <div className="event-staff">
         {staff}
@@ -92,12 +71,17 @@ export default class App extends Component {
   render() {
     let components = {
       agenda: {
-        event: Event // with the agenda view use a different component to render events
+        event: Event
       }
     }
     return (
       <div id="container">
+        {filedownloadlink && <a download="cal.ics" href={filedownloadlink}>Download iCal</a>}
+
+
         <p>{this.state.calendar == null ? "Enter Matric" : ""}</p>
+
+
         <Calendar
           components={components}
           localizer={localizer}
@@ -108,24 +92,25 @@ export default class App extends Component {
           defaultView={'agenda'}
           min={this.state.minTime}
           max={this.state.maxTime}
-          formats = {{
-            agendaHeaderFormat: ({start, end}) => {
-                return (moment.utc(start).format('DD/MM/YYYY') + ' - ' + moment.utc(end).format('DD/MM/YYYY') );
+          formats={{
+            agendaHeaderFormat: ({ start, end }) => {
+              return (moment.utc(start).format('DD/MM/YYYY') + ' - ' + moment.utc(end).format('DD/MM/YYYY'));
             }
-        }}
-
+          }}
         />
+
         <div className="matric-input" style={this.state.calendar != null ? { display: "none" } : {}}>
           <form>
-          <input onChange={event => this._HandleChange(event.target.value)}
-            onKeyDown={evnt => this._HandleInput(evnt)}
-            name="matriculation"
-          ></input>
-          <button onClick={() => this.openUrl()} type="submit">
-            submit
+            <input onChange={event => this._HandleChange(event.target.value)}
+              onKeyDown={evnt => this._HandleInput(evnt)}
+              name="matriculation"
+            ></input>
+            <button onClick={() => this.openUrl()} type="submit">
+              submit
         </button>
-        </form>
+          </form>
         </div>
+
       </div>
     )
   }
@@ -181,7 +166,6 @@ export default class App extends Component {
       returnArray.push(parseInt(split[0].trim()))
       returnArray.push(parseInt(split[1].trim()))
       return returnArray
-
     }
     function addDays(date, days) {
       var result = new Date(date);
@@ -190,7 +174,9 @@ export default class App extends Component {
     }
     var week1 = new Date(2020, 9, 5)
     var week12 = new Date(2021, 0, 18)
+    
     var moduleDict = {};
+
     for (let x = 0; x < days.length; x++) {
       let dayAdd = x
       for (let y = 0; y < days[x].length; y++) {
@@ -247,8 +233,19 @@ export default class App extends Component {
           var endHours = parseTime(cur.end)
           var end = addMinutes(curDate, endHours[0] * 60)
           end = addMinutes(end, endHours[1])
+
+          let staffurl = "https://www.dundee.ac.uk/people/"
+          let staffsplit = cur.staff.split(",")
+          let staffarray = []
+          for (let x = 0; x < staffsplit.length; x += 2) {
+            staffarray.push({
+              name: staffsplit[x + 1].trim() + " " + staffsplit[x].trim(),
+              url: staffurl + staffsplit[x + 1].trim() + "-" + staffsplit[x].trim(),
+              email: "a"
+            })
+          }
           var event = {
-            title: cur.type + " | " + moduleName + " | " + cur.activity.split(" ")[0],
+            title: cur.type + " | " + moduleName,
             type: cur.type,
             start: start,
             end: end,
@@ -257,15 +254,26 @@ export default class App extends Component {
             modcode: modcode,
             room: cur.room,
             activity: cur.activity,
-            staff: cur.staff,
+            staff: staffarray,
             duration: cur.duration,
           };
+
+          let icalevent = {
+            start: start,
+            end: end,
+            summary: event.type + " : " + moduleName,
+            description: event.activity,
+            location: event.room,
+            attendees: event.staff,
+          }
+          cal.createEvent(icalevent)
           events.push(event)
         }
 
       }
     }
     console.log(events)
+    filedownloadlink = cal.toURL()
     return events
   }
   getModuleInfo(url) {
@@ -293,6 +301,7 @@ export default class App extends Component {
     cors = "https://cors-spooky.herokuapp.com/"
     cors = "https://secret-chamber-30285.herokuapp.com/"
     var fullURL = hostname + ':' + port + path + matric + path2
+    console.log(fullURL);
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open("GET", cors + fullURL, false); // false for synchronous request
     xmlHttp.send();
@@ -323,4 +332,5 @@ export default class App extends Component {
     console.log(window.location.search)
     this.getTimetable(window.location.search.split("=")[1])
   }
+
 }
