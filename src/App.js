@@ -9,6 +9,8 @@ moment.locale('en', {
   },
 });
 const localizer = momentLocalizer(moment)
+
+
 const ical = require('ical-generator');
 const cal = ical({ domain: "github.com/aliveSurfin/react-uod-cal", name: "react-uod-cal", prodId: { company: "github.com/aliveSurfin", product: "react-uod-cal" } });
 var filedownloadlink = false
@@ -241,7 +243,6 @@ export default class App extends Component {
             staffarray.push({
               name: staffsplit[x + 1].trim() + " " + staffsplit[x].trim(),
               url: staffurl + staffsplit[x + 1].trim() + "-" + staffsplit[x].trim(),
-              email: "a"
             })
           }
           var event = {
@@ -264,7 +265,6 @@ export default class App extends Component {
             summary: event.type + " : " + moduleName,
             description: event.activity,
             location: event.room,
-            attendees: event.staff,
           }
           cal.createEvent(icalevent)
           events.push(event)
@@ -272,7 +272,7 @@ export default class App extends Component {
 
       }
     }
-    console.log(events)
+    //console.log(events)
     filedownloadlink = cal.toURL()
     return events
   }
@@ -301,7 +301,7 @@ export default class App extends Component {
     cors = "https://cors-spooky.herokuapp.com/"
     cors = "https://secret-chamber-30285.herokuapp.com/"
     var fullURL = hostname + ':' + port + path + matric + path2
-    console.log(fullURL);
+    //console.log(fullURL);
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open("GET", cors + fullURL, false); // false for synchronous request
     xmlHttp.send();
@@ -323,7 +323,7 @@ export default class App extends Component {
       daysJSON.push(this.tableToJson(doc.body.firstChild))
 
     }
-    console.log(daysJSON)
+    //console.log(daysJSON)
     let temp = this.parseTimetable(daysJSON)
     this.setState({ "calendar": temp })
 
