@@ -118,7 +118,7 @@ export default class App extends Component {
   }
   tableToJson(table) {
     var data = [];
-
+    console.log(table);
     // first row needs to be headers
     var headers = [];
     for (let i = 0; i < table.rows[0].cells.length; i++) {
