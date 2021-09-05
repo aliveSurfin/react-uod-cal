@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/react-uod-cal/static/css/main.215ba523.chunk.css",
-    "main.js": "/react-uod-cal/static/js/main.97d7cc3b.chunk.js",
-    "main.js.map": "/react-uod-cal/static/js/main.97d7cc3b.chunk.js.map",
+    "main.js": "/react-uod-cal/static/js/main.74bcaa28.chunk.js",
+    "main.js.map": "/react-uod-cal/static/js/main.74bcaa28.chunk.js.map",
     "runtime-main.js": "/react-uod-cal/static/js/runtime-main.63660683.js",
     "runtime-main.js.map": "/react-uod-cal/static/js/runtime-main.63660683.js.map",
     "static/js/2.359026f4.chunk.js": "/react-uod-cal/static/js/2.359026f4.chunk.js",
     "static/js/2.359026f4.chunk.js.map": "/react-uod-cal/static/js/2.359026f4.chunk.js.map",
     "index.html": "/react-uod-cal/index.html",
-    "precache-manifest.b1b45aecad272e372883596c648f2034.js": "/react-uod-cal/precache-manifest.b1b45aecad272e372883596c648f2034.js",
+    "precache-manifest.2dd42e89519bc60fdb478b34a3c6ff71.js": "/react-uod-cal/precache-manifest.2dd42e89519bc60fdb478b34a3c6ff71.js",
     "service-worker.js": "/react-uod-cal/service-worker.js",
     "static/css/main.215ba523.chunk.css.map": "/react-uod-cal/static/css/main.215ba523.chunk.css.map",
     "static/js/2.359026f4.chunk.js.LICENSE.txt": "/react-uod-cal/static/js/2.359026f4.chunk.js.LICENSE.txt"
@@ -17,6 +17,6 @@
     "static/js/runtime-main.63660683.js",
     "static/js/2.359026f4.chunk.js",
     "static/css/main.215ba523.chunk.css",
-    "static/js/main.97d7cc3b.chunk.js"
+    "static/js/main.74bcaa28.chunk.js"
   ]
 }
