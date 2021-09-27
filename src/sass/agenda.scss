@@ -64,10 +64,13 @@
 .rbc-agenda-date-cell,
 .rbc-agenda-time-cell {
   white-space: nowrap;
+  color: #ddd9d6;
+  font-weight: bold;
 }
 
 
 
 .rbc-agenda-event-cell {
-  width: 100%
+  width: 100%;
+  color: #ddd9d6;
 }
