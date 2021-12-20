@@ -114,6 +114,14 @@ export default class App extends Component {
                 onKeyDown={evnt => this._HandleInput(evnt)}
                 name="matriculation"
               ></input>
+              <select>
+                <option value={1}> 
+                  /1
+                </option>
+                <option value={2}>
+                  /2
+                </option>
+              </select>
               <button onClick={() => this.openUrl()} type="submit">
                 Go
               </button>
@@ -127,7 +135,6 @@ export default class App extends Component {
   }
   tableToJson(table) {
     var data = [];
-    console.log(table);
     if (table.rows[0] == undefined) {
       return {}
     }
@@ -186,7 +193,7 @@ export default class App extends Component {
       return result;
     }
     var week1 = new Date(2021, 8, 27)
-    var week12 = new Date(2021, 0, 18)
+    var week12 = new Date(2022, 0, 17)
 
     var moduleDict = {};
 
@@ -234,8 +241,9 @@ export default class App extends Component {
         for (let i = 0; i < weeksForEvent.length; i++) {
           let curDate
           if (weeksForEvent[i] >= 12) {
+            console.log(weeksForEvent[i]);
             weeksForEvent[i] = weeksForEvent[i] - 12
-            curDate = addDays(week12, ((weeksForEvent[i]) * 7))
+            curDate = addDays(week12, ((weeksForEvent[i] -1 ) * 7))
           } else {
             curDate = addDays(week1, ((weeksForEvent[i] - 1) * 7))
           }
@@ -367,7 +375,6 @@ export default class App extends Component {
     }
     raw = raw.split(`<p><span class='labelone'>Saturday</span></p>`)[0]
     var days = raw.split('</span></p>')
-    console.log(days);
     var daysJSON = []
     for (let x = 0; x < days.length; x++) {
       if (days[x].includes(`<p><span class='labelone'`)) {
