@@ -1,4 +1,4 @@
- #container > p , .matric-input{
+ #container > p {
   text-align: center;
   font-weight: bolder;
 }
@@ -12,25 +12,47 @@ html {
   background-color: #464646;
 }
 .matric-input{
-  width: 100%;
   background-color: #ddd9d6;
   
 }
 .matric-input > form{
-  width: 100%;
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
+}
+
+form > label{
+  text-align: center;
+  font-weight: bold;
+}
+#matricContainer{
+  display: grid;
+  grid-template-columns: 9fr 2fr;
+}
+.matric-input > form{
+  /* width: 100%; */
   padding: 5em 0 5em 0;
   
 }
+
 .matric-input > form > * {
-  display: inline-block;
-  width: 51%;
+  margin: auto;
+  padding: 2%;
 }
-.matric-input > form > input{
-  font-size: 1.5em;
+#matricContainer > input, #matricContainer > select{
   text-align: center;
-  border-radius: .25em;
   background-color: #d1e2f2;
-  min-width: 13.5em;
+  font-size: 1em;
+
+}
+#matricContainer > input{
+  border-width: .1em 0 .1em .1em;
+  border-radius: .25em 0 0 .25em;
+
+}
+
+#matricContainer > select{
+  border-width: .1em .1em .1em 0;
+  border-radius: 0 .25em .25em 0;
 }
 .matric-input > form > button{
   background-color: #01d17c;

@@ -63,6 +63,7 @@ export default class App extends Component {
     if (this.state.matric === "" || this.state.matric === undefined || this.state.matric === null) {
       return false
     }
+
     window.open(window.location.origin + window.location.pathname + "/?s=" + this.state.matric, "_self")
   }
   _HandleInput(e) {
@@ -84,7 +85,7 @@ export default class App extends Component {
     }
     return (
       <div id="container">
-        {filedownloadlink && <a className = "ical-dl" download="cal.ics" href={filedownloadlink}>Download iCal</a>}
+        {filedownloadlink && <a className="ical-dl" download="cal.ics" href={filedownloadlink}>Download iCal</a>}
 
 
 
@@ -96,7 +97,7 @@ export default class App extends Component {
           events={this.state.calendar == null ? [] : this.state.calendar}
           startAccessor="start"
           endAccessor="end"
-          style={this.state.calendar == null ? { display: "none" } : { height:  700}}
+          style={this.state.calendar == null ? { display: "none" } : { height: 700 }}
           defaultView={'agenda'}
           min={this.state.minTime}
           max={this.state.maxTime}
@@ -110,19 +111,21 @@ export default class App extends Component {
           <div className="matric-input">
             <form>
               <label> Enter Matriculation Number </label>
-              <input onChange={event => this._HandleChange(event.target.value)}
-                onKeyDown={evnt => this._HandleInput(evnt)}
-                name="matriculation"
-              ></input>
-              <select>
-                <option value={1}> 
-                  /1
-                </option>
-                <option value={2}>
-                  /2
-                </option>
-              </select>
-              <button onClick={() => this.openUrl()} type="submit">
+              <div id='matricContainer'>
+                <input onChange={event => this._HandleChange(event.target.value)}
+                  onKeyDown={evnt => this._HandleInput(evnt)}
+                  name="matriculation"
+                ></input>
+                <select id="slash" name='slash'>
+                  <option value={1}>
+                    /1
+                  </option>
+                  <option value={2}>
+                    /2
+                  </option>
+                </select>
+              </div>
+              <button type="submit">
                 Go
               </button>
             </form>
@@ -243,7 +246,7 @@ export default class App extends Component {
           if (weeksForEvent[i] >= 12) {
             console.log(weeksForEvent[i]);
             weeksForEvent[i] = weeksForEvent[i] - 12
-            curDate = addDays(week12, ((weeksForEvent[i] -1 ) * 7))
+            curDate = addDays(week12, ((weeksForEvent[i] - 1) * 7))
           } else {
             curDate = addDays(week1, ((weeksForEvent[i] - 1) * 7))
           }
@@ -309,63 +312,18 @@ export default class App extends Component {
     var raw = xmlHttp.responseText.split("<title>")[1].split("module")[0].trim()
     return raw
   }
-  getTimetable(matric) {
-    if (matric === "" || matric === undefined || matric === null) {
-      return
-    }
+
+  createURLFromMatric(matric, slash) {
     var hostname = 'https://timetable.dundee.ac.uk'
     var port = '8085'
     var path = '/reporting/textspreadsheet?objectclass=student+set&idtype=id&identifier='
-    var path2 = "/1&t=SWSCUST+student+set+textspreadsheet&days=1-7&weeks=1-52&periods=1-28&template=SWSCUST+student+set+textspreadsheet"
+    var path2 = "&t=SWSCUST+student+set+textspreadsheet&days=1-7&weeks=1-52&periods=1-28&template=SWSCUST+student+set+textspreadsheet"
     var cors = "https://cors-anywhere.herokuapp.com/"
     cors = "https://mysterious-everglades-22580.herokuapp.com/"
     cors = "https://cors-spooky.herokuapp.com/"
     cors = "https://secret-chamber-30285.herokuapp.com/"
-    var fullURL = hostname + ':' + port + path + matric + path2
-    //console.log(fullURL);
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("GET", cors + fullURL, false); // false for synchronous request
-    xmlHttp.send();
-    var raw = xmlHttp.responseText
-    raw = raw.split(`<p><span class='labelone'>Monday</span></p>`)[1]
-    if (raw === undefined) {
-      return
-    }
-    raw = raw.split(`<p><span class='labelone'>Saturday</span></p>`)[0]
-    //console.log(raw)
-    var days = raw.split('</span></p>')
-    var daysJSON = []
-    for (let x = 0; x < days.length; x++) {
-      if (days[x].includes(`<p><span class='labelone'`)) {
-        days[x] = days[x].split('</table>')[0]
-      }
-      var parser = new DOMParser();
-      var doc = parser.parseFromString(days[x], 'text/html');
-      daysJSON.push(this.tableToJson(doc.body.firstChild))
-
-    }
-    //console.log(daysJSON)
-    let temp = this.parseTimetable(daysJSON)
-    this.setState({ "calendar": temp })
-
-  }
-
-  getTimetableFromMatric(matric) {
-    if (matric === "" || matric === undefined || matric === null) {
-      return
-    }
-
-  }
-  createURLFromMatric(matric) {
-    var hostname = 'https://timetable.dundee.ac.uk'
-    var port = '8085'
-    var path = '/reporting/textspreadsheet?objectclass=student+set&idtype=id&identifier='
-    var path2 = "/1&t=SWSCUST+student+set+textspreadsheet&days=1-7&weeks=1-52&periods=1-28&template=SWSCUST+student+set+textspreadsheet"
-    var cors = "https://cors-anywhere.herokuapp.com/"
-    cors = "https://mysterious-everglades-22580.herokuapp.com/"
-    cors = "https://cors-spooky.herokuapp.com/"
-    cors = "https://secret-chamber-30285.herokuapp.com/"
-    var fullURL = cors + hostname + ':' + port + path + matric + path2
+    var fullURL = cors + hostname + ':' + port + path + matric + `/${slash}` + path2
+    console.log(fullURL)
     return fullURL
   }
   async rawHtmlToJSON(raw) {
@@ -388,18 +346,18 @@ export default class App extends Component {
     return daysJSON
   }
   componentDidMount() {
-    console.log(window.location.search)
-    //this.getTimetable(window.location.search.split("=")[1])
-    let matric = window.location.search.split("=")[1];
+
+    const params = new URLSearchParams(window.location.search);
+    let matric = params.get('matriculation')
+    let slash = params.get('slash')
+    console.log(slash)
     if (!/[0-9]{9}/.test(matric)) {
       this.setState({ loading: false })
       return
     }
     this.setState({ loading: true })
-    //this.getTimetableRawFromMatric(window.location.search.split("=")[1]).then((e)=>{console.log(e);})
-    // fetch(this.createURLFromMatric(matric)).then(res => console.log(res))
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("GET", this.createURLFromMatric(matric));
+    xmlHttp.open("GET", this.createURLFromMatric(matric, slash));
     xmlHttp.send();
     xmlHttp.onload = () => {
       this.rawHtmlToJSON(xmlHttp.responseText).then((e) => {
