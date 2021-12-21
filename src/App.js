@@ -244,7 +244,6 @@ export default class App extends Component {
         for (let i = 0; i < weeksForEvent.length; i++) {
           let curDate
           if (weeksForEvent[i] >= 12) {
-            console.log(weeksForEvent[i]);
             weeksForEvent[i] = weeksForEvent[i] - 12
             curDate = addDays(week12, ((weeksForEvent[i] - 1) * 7))
           } else {
@@ -350,7 +349,7 @@ export default class App extends Component {
     const params = new URLSearchParams(window.location.search);
     let matric = params.get('matriculation')
     let slash = params.get('slash')
-    console.log(slash)
+    slash = slash === null ? 1 : slash
     if (!/[0-9]{9}/.test(matric)) {
       this.setState({ loading: false })
       return
