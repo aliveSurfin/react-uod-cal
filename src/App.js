@@ -199,7 +199,11 @@ export default class App extends Component {
     var week12 = new Date(2022, 0, 17)
 
     var moduleDict = {};
+    if (!days) {
 
+      return
+
+    }
     for (let x = 0; x < days.length; x++) {
       let dayAdd = x
       for (let y = 0; y < days[x].length; y++) {
@@ -355,16 +359,24 @@ export default class App extends Component {
       return
     }
     this.setState({ loading: true })
+
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open("GET", this.createURLFromMatric(matric, slash));
     xmlHttp.send();
+
     xmlHttp.onload = () => {
+      if (xmlHttp.status == 400) {
+        alert(`Unable to get timetable for ${matric}/${slash}`)
+        this.setState({loading: false })
+        return
+      }
       this.rawHtmlToJSON(xmlHttp.responseText).then((e) => {
         this.parseTimetable(e).then((f) => {
           this.setState({ "calendar": f, loading: false })
         })
       })
     }
+
 
   }
 
