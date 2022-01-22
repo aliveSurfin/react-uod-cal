@@ -318,7 +318,7 @@ export default class App extends Component {
 
   createURLFromMatric(matric, slash) {
     var hostname = 'https://timetable.dundee.ac.uk'
-    var port = '8085'
+    var port = '8084'
     var path = '/reporting/textspreadsheet?objectclass=student+set&idtype=id&identifier='
     var path2 = "&t=SWSCUST+student+set+textspreadsheet&days=1-7&weeks=1-52&periods=1-28&template=SWSCUST+student+set+textspreadsheet"
     var cors = "https://cors-anywhere.herokuapp.com/"
