@@ -354,7 +354,7 @@ export default class App extends Component {
     let matric = params.get('matriculation')
     let slash = params.get('slash')
     slash = slash === null ? 1 : slash
-    if (!/[0-9]{9}/.test(matric) || /[0-9]{7}/.test(matric)) {
+    if (!/[0-9]{9}/.test(matric) && !/[0-9]{7}/.test(matric)) {
       this.setState({ loading: false })
       return
     }
@@ -367,11 +367,11 @@ export default class App extends Component {
     xmlHttp.onload = () => {
       if (xmlHttp.status == 400) {
         alert(`Unable to get timetable for ${matric}/${slash}`)
-        this.setState({loading: false })
+        this.setState({ loading: false })
         return
-      }else if(xmlHttp.status == 503) {
+      } else if (xmlHttp.status == 503) {
         alert(`Timetable servers down`)
-        this.setState({loading: false })
+        this.setState({ loading: false })
         return
       }
       this.rawHtmlToJSON(xmlHttp.responseText).then((e) => {
