@@ -369,6 +369,10 @@ export default class App extends Component {
         alert(`Unable to get timetable for ${matric}/${slash}`)
         this.setState({loading: false })
         return
+      }else if(xmlHttp.status == 503) {
+        alert(`Timetable servers down`)
+        this.setState({loading: false })
+        return
       }
       this.rawHtmlToJSON(xmlHttp.responseText).then((e) => {
         this.parseTimetable(e).then((f) => {
