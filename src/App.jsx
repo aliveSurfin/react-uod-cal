@@ -86,9 +86,6 @@ export default class App extends Component {
     return (
       <div id="container">
         {filedownloadlink && <a className="ical-dl" download="cal.ics" href={filedownloadlink}>Download iCal</a>}
-
-
-
         {this.state.loading && <Spinner></Spinner>}
 
         <Calendar
